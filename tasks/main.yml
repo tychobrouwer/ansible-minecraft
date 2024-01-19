@@ -55,16 +55,22 @@
     owner: root
     group: root
 
-- name: Ensure config files are present on remote
+- name: Ensure eula file is present on remote
   ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: /root
+    src: eula.txt
+    dest: /root/eula.txt
     mode: "0644"
     owner: root
     group: root
-  with_items:
-    - server.properties
-    - eula.txt
+  notify: Restart minecraft service
+
+- name: Ensure server properties are present on remote
+  ansible.builtin.template:
+    src: server.properties.j2
+    dest: /root/server.properties
+    mode: "0644"
+    owner: root
+    group: root
   notify: Restart minecraft service
 
 - name: Ensure minecraft service is enabled and started

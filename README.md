@@ -1,31 +1,65 @@
-Role Name
+Install and configure a Minecraft server
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+The role will install and configure a Spigot Minecraft server for my servers.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```minecraft_spigot_version``` can be set to the SpigotMC version for the server.
 
-Dependencies
-------------
+```minecraft_java_version``` can be set to the Java version required for the selected SpigotMC server.
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+```minecraft_server_prop``` can be set to the server properties for the server, below the default values are shown.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
+```yaml
     - hosts: servers
+      vars:
+        minecraft_server_prop:
+          enable_rcon: false
+          rcon_password: ""
+          rcon_port: 25575
+          enable_query: false
+          query_port: 25565
+          server_port: 25565
+          level_seed: ""
+          enable_command_block: false
+          level_name: world
+          motd: "A Minecraft Server"
+          gamemode: survival
+          server_ip: ""
+          op_permission_level: 4
+          function_permission_level: 2
+          pvp: true
+          difficulty: hard
+          hardcore: false
+          level_type: minecraft\:normal
+          generate_structures: true
+          max_tick_time: 60000
+          max_players: 20
+          view_distance: 10
+          simulation_distance: 10
+          player_idle_timeout: 0
+          rate_limit: 0
+          white_list: false
+          enforce_whitelist: false
+          allow_flight: false
+          allow_nether: true
+          spawn_npcs: true
+          spawn_animals: true
+          spawn_monsters: true
+          spawn_protection: 16
+          max_world_size: 29999984
+          require_resource_pack: false
+          resource_pack: ""
+          resource_pack_sha1: ""
+
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: tychobrouwer.minecraft, spigot_version: 1.20.4, java_version: 17 }
+```
 
 License
 -------
