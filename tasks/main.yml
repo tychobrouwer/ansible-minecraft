@@ -11,7 +11,7 @@
     name:
       - "openjdk-{{ minecraft_java_version }}-jre-headless"
       - git
-    state: latest
+    state: present
 
 - name: Ensure Spigot buildtools are present
   ansible.builtin.get_url:
@@ -22,7 +22,7 @@
     group: root
 
 - name: Set git config
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: core.autocrlf
     state: absent
     scope: global
@@ -45,7 +45,7 @@
     mode: "0644"
     owner: root
     group: root
-    remote_src: yes
+    remote_src: true
 
 - name: Ensure minecraft service file is on remote (systemd)
   ansible.builtin.template:
