@@ -58,7 +58,7 @@ Example Playbook
           resource_pack_sha1: ""
 
       roles:
-         - { role: tychobrouwer.minecraft, spigot_version: 1.20.4, java_version: 17 }
+         - { role: tychobrouwer.minecraft, minecraft_spigot_version: 1.20.4, minecraft_java_version: 17 }
 ```
 
 License
