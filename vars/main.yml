@@ -1,2 +1,5 @@
 ---
 # vars file for ansible-minecraft
+java_version: 17
+spigot_version: 1.19.3
+buildtools_url: https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar

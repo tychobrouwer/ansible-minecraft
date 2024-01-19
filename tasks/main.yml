@@ -1,2 +1,74 @@
 ---
 # tasks file for ansible-minecraft
+- name: Update cache if needed (Debian)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install Java and git package
+  ansible.builtin.package:
+    name:
+      - "openjdk-{{ java_version }}-jre-headless"
+      - git
+    state: latest
+
+- name: Ensure Spigot buildtools are present
+  ansible.builtin.get_url:
+    url: "{{ buildtools_url }}"
+    dest: /root/BuildTools.jar
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Set git config
+  ansible.builtin.git_config:
+    name: core.autocrlf
+    state: absent
+    scope: global
+
+- name: Check if current version is installed
+  ansible.builtin.stat:
+    path: "/root/spigot-{{ spigot_version }}.jar"
+  register: current_spigot
+
+- name: Run buildtools if version is not present
+  ansible.builtin.command: "java -jar /root/BuildTools.jar --rev {{ spigot_version }} --output-dir /root"
+  changed_when: true
+  when: not current_spigot.stat.exists
+  notify: Restart minecraft service
+
+- name: Copy the jar file without version
+  ansible.builtin.copy:
+    src: "/root/spigot-{{ spigot_version }}.jar"
+    dest: /root/spigot.jar
+    mode: "0644"
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: Ensure minecraft service file is on remote (systemd)
+  ansible.builtin.template:
+    src: minecraft.service.j2
+    dest: /etc/systemd/system/minecraft.service
+    mode: "0664"
+    owner: root
+    group: root
+
+- name: Ensure config files are present on remote
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /root
+    mode: "0644"
+    owner: root
+    group: root
+  with_items:
+    - server.properties
+    - eula.txt
+  notify: Restart minecraft service
+
+- name: Ensure minecraft service is enabled and started
+  ansible.builtin.service:
+    name: minecraft
+    state: started
+    enabled: true
