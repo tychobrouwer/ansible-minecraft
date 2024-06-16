@@ -1,38 +1,7 @@
 ---
 # vars file for ansible-minecraft
-minecraft_java_version: 17
-minecraft_spigot_version: 1.20.4
-minecraft_buildtools_url: https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+minecraft_java_version: 21
+minecraft_paper_version: 1.20.6
+minecraft_paper_build: 145
 
-minecraft_server_prop:
-  enable_rcon: false
-  rcon_password: ""
-  rcon_port: 25575
-  query_port: 25565
-  server_port: 25565
-  level_seed: ""
-  enable_command_block: false
-  level_name: world
-  motd: "A Minecraft Server"
-  gamemode: survival
-  server_ip: ""
-  pvp: true
-  difficulty: hard
-  hardcore: false
-  level_type: minecraft\:normal
-  generate_structures: true
-  max_tick_time: 60000
-  max_players: 20
-  view_distance: 10
-  simulation_distance: 10
-  player_idle_timeout: 0
-  rate_limit: 0
-  white_list: false
-  enforce_whitelist: false
-  allow_flight: false
-  allow_nether: true
-  spawn_npcs: true
-  spawn_animals: true
-  spawn_monsters: true
-  spawn_protection: 16
-  max_world_size: 29999984
+minecraft_chunky: true

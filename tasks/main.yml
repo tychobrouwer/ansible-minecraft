@@ -8,44 +8,15 @@
 
 - name: Install Java and git package
   ansible.builtin.package:
-    name:
-      - "openjdk-{{ minecraft_java_version }}-jre-headless"
-      - git
+    name: "openjdk-{{ minecraft_java_version }}-jre-headless"
     state: present
 
-- name: Ensure Spigot buildtools are present
+- name: Get Paper jar file
   ansible.builtin.get_url:
-    url: "{{ minecraft_buildtools_url }}"
-    dest: /root/BuildTools.jar
+    url: "https://api.papermc.io/v2/projects/paper/versions/{{ minecraft_paper_version }}/builds/{{ minecraft_paper_build }}/downloads/paper-{{ minecraft_paper_version }}-{{ minecraft_paper_build }}.jar"
+    dest: /root/paper-{{ minecraft_paper_version }}-{{ minecraft_paper_build }}.jar
     mode: "0644"
-    owner: root
-    group: root
-
-- name: Set git config
-  community.general.git_config:
-    name: core.autocrlf
-    state: absent
-    scope: global
-
-- name: Check if current version is installed
-  ansible.builtin.stat:
-    path: "/root/spigot-{{ minecraft_spigot_version }}.jar"
-  register: current_spigot
-
-- name: Run buildtools if version is not present
-  ansible.builtin.command: "java -jar /root/BuildTools.jar --rev {{ minecraft_spigot_version }} --output-dir /root"
-  changed_when: true
-  when: not current_spigot.stat.exists
   notify: Restart minecraft service
-
-- name: Copy the jar file without version
-  ansible.builtin.copy:
-    src: "/root/spigot-{{ minecraft_spigot_version }}.jar"
-    dest: /root/spigot.jar
-    mode: "0644"
-    owner: root
-    group: root
-    remote_src: true
 
 - name: Ensure minecraft service file is on remote (systemd)
   ansible.builtin.template:
@@ -54,24 +25,6 @@
     mode: "0664"
     owner: root
     group: root
-
-- name: Ensure eula file is present on remote
-  ansible.builtin.copy:
-    src: eula.txt
-    dest: /root/eula.txt
-    mode: "0644"
-    owner: root
-    group: root
-  notify: Restart minecraft service
-
-- name: Ensure server properties are present on remote
-  ansible.builtin.template:
-    src: server.properties.j2
-    dest: /root/server.properties
-    mode: "0644"
-    owner: root
-    group: root
-  notify: Restart minecraft service
 
 - name: Ensure minecraft service is enabled and started
   ansible.builtin.service:
