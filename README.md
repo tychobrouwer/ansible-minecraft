@@ -19,7 +19,7 @@ Example Playbook
     - hosts: servers
 
       roles:
-         - { role: tychobrouwer.minecraft, minecraft_paper_version: 1.20.6, minecraft_paper_build: 145, minecraft_java_version: 21 }
+         - { role: tychobrouwer.minecraft, minecraft_paper_version: 1.20.6, minecraft_paper_build: 145, minecraft_java_package: java-21-amazon-corretto-jdk }
 ```
 
 License

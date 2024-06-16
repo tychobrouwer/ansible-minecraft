@@ -11,12 +11,12 @@
     name: gnupg
     state: present
 
-- name: Ensure proxmox signing key is installed
+- name: Ensure corretto key is on remote
   ansible.builtin.apt_key:
     url: "{{ minecraft_java_deb_key }}"
     state: present
 
-- name: Set repositories to no-subscription
+- name: Ensure corretto repo is on remote
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/java.list
     content: "{{ minecraft_java_deb_repo }}"
@@ -24,7 +24,13 @@
     group: root
     mode: 0644
 
-- name: Install Java and git package
+- name: Update cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install Java packages
   ansible.builtin.package:
     name:
       - "{{ minecraft_java_package }}"
@@ -38,6 +44,15 @@
     url: "https://api.papermc.io/v2/projects/paper/versions/{{ minecraft_paper_version }}/builds/{{ minecraft_paper_build }}/downloads/paper-{{ minecraft_paper_version }}-{{ minecraft_paper_build }}.jar"
     dest: /root/paper-{{ minecraft_paper_version }}-{{ minecraft_paper_build }}.jar
     mode: "0644"
+  notify: Restart minecraft service
+
+- name: Ensure eula file is present on remote
+  ansible.builtin.copy:
+    src: eula.txt
+    dest: /root/eula.txt
+    mode: "0644"
+    owner: root
+    group: root
   notify: Restart minecraft service
 
 - name: Ensure minecraft service file is on remote (systemd)
@@ -54,29 +69,29 @@
     state: started
     enabled: true
 
-# - name: Ensure templates are on remote
-#   ansible.builtin.copy:
-#     dest: /root/{{ item.name }}
-#     content: "{{ item.content }}"
-#     mode: "0644"
-#     owner: root
-#     group: root
-#   with_items:
-#     - { content: "{{ minecraft_properties_template }}", name: server.properties-template }
+- name: Ensure templates are on remote
+  ansible.builtin.copy:
+    dest: /root/{{ item.name }}
+    content: "{{ item.content }}"
+    mode: "0644"
+    owner: root
+    group: root
+  with_items:
+    - { content: "{{ minecraft_properties_template }}", name: server.properties-template }
 
-# - name: Get templates from remote to controller
-#   ansible.builtin.fetch:
-#     src: /root/{{ item }}
-#     dest: /tmp
-#   with_items:
-#     - server.properties-template
+- name: Get templates from remote to controller
+  ansible.builtin.fetch:
+    src: /root/{{ item }}
+    dest: /tmp
+  with_items:
+    - server.properties-template
 
-# - name: Create configs from templates on controller
-#   ansible.builtin.template:
-#     src: /tmp/{{ inventory_hostname }}/root/{{ item.name }}
-#     dest: "{{ item.dest }}"
-#     mode: "0644"
-#     owner: root
-#     group: root
-#   with_items:
-#     - { name: server.properties-template, dest: /root/ }
+- name: Create configs from templates on controller
+  ansible.builtin.template:
+    src: /tmp/{{ inventory_hostname }}/root/{{ item.name }}
+    dest: "{{ item.dest }}"
+    mode: "0644"
+    owner: root
+    group: root
+  with_items:
+    - { name: server.properties-template, dest: /root/server.properties }
