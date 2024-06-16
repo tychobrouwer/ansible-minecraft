@@ -79,10 +79,11 @@
   with_items:
     - { content: "{{ minecraft_properties_template }}", name: server.properties-template }
 
-- name: Get templates from remote to controller
+- name: Get templates from remote to controller in predictable location
   ansible.builtin.fetch:
     src: /root/{{ item }}
     dest: /tmp
+  changed_when: false
   with_items:
     - server.properties-template
 
@@ -95,3 +96,4 @@
     group: root
   with_items:
     - { name: server.properties-template, dest: /root/server.properties }
+  notify: Restart minecraft service
