@@ -6,9 +6,31 @@
     cache_valid_time: 3600
   when: ansible_os_family == "Debian"
 
+- name: Install gnupg
+  ansible.builtin.package:
+    name: gnupg
+    state: present
+
+- name: Ensure proxmox signing key is installed
+  ansible.builtin.apt_key:
+    url: "{{ minecraft_java_deb_key }}"
+    state: present
+
+- name: Set repositories to no-subscription
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/java.list
+    content: "{{ minecraft_java_deb_repo }}"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Install Java and git package
   ansible.builtin.package:
-    name: "openjdk-{{ minecraft_java_version }}-jre-headless"
+    name:
+      - "{{ minecraft_java_package }}"
+      - libxi6
+      - libxtst6
+      - libxrender1
     state: present
 
 - name: Get Paper jar file
