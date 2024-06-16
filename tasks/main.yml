@@ -31,3 +31,30 @@
     name: minecraft
     state: started
     enabled: true
+
+# - name: Ensure templates are on remote
+#   ansible.builtin.copy:
+#     dest: /root/{{ item.name }}
+#     content: "{{ item.content }}"
+#     mode: "0644"
+#     owner: root
+#     group: root
+#   with_items:
+#     - { content: "{{ minecraft_properties_template }}", name: server.properties-template }
+
+# - name: Get templates from remote to controller
+#   ansible.builtin.fetch:
+#     src: /root/{{ item }}
+#     dest: /tmp
+#   with_items:
+#     - server.properties-template
+
+# - name: Create configs from templates on controller
+#   ansible.builtin.template:
+#     src: /tmp/{{ inventory_hostname }}/root/{{ item.name }}
+#     dest: "{{ item.dest }}"
+#     mode: "0644"
+#     owner: root
+#     group: root
+#   with_items:
+#     - { name: server.properties-template, dest: /root/ }

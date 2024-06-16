@@ -4,4 +4,6 @@ minecraft_java_version: 21
 minecraft_paper_version: 1.20.6
 minecraft_paper_build: 145
 
+minecraft_level_name: world
+
 minecraft_chunky: true
