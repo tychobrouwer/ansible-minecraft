@@ -14,6 +14,7 @@
 - name: Ensure corretto key is on remote
   ansible.builtin.apt_key:
     url: "{{ minecraft_java_deb_key }}"
+    keyring: /usr/share/keyrings/corretto-keyring.gpg
     state: present
 
 - name: Ensure corretto repo is on remote
