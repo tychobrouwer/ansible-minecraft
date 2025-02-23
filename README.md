@@ -16,10 +16,22 @@ Example Playbook
 ----------------
 
 ```yaml
-    - hosts: servers
+- hosts: servers
+  vars:
+    minecraft_properties_template: templates/server.properties.j2
 
-      roles:
-         - { role: tychobrouwer.minecraft, minecraft_paper_version: 1.20.6, minecraft_paper_build: 145, minecraft_java_package: java-21-amazon-corretto-jdk }
+  roles:
+    - role: tychobrouwer.minecraft
+    
+    - role: tychobrouwer.minecraft
+      minecraft_paper_version: 1.20.6
+      minecraft_paper_build: 145
+      minecraft_java_version: 21
+      minecraft_java_deb_key: https://apt.corretto.aws/corretto.key
+      minecraft_java_deb_repo: deb https://apt.corretto.aws stable main
+      minecraft_java_package: java-21-amazon-corretto-jdk
+      minecraft_level_name: world
+      minecraft_chunky: true
 ```
 
 License
