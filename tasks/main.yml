@@ -1,31 +1,31 @@
 ---
 # tasks file for ansible-minecraft
-- name: Update cache if needed
+- name: Update APT cache
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
   when: ansible_os_family == "Debian"
 
-- name: Install gnupg
+- name: Install GnuPG
   ansible.builtin.package:
     name: gnupg
     state: present
 
-- name: Ensure corretto key is on remote
+- name: Ensure Java key is on remote
   ansible.builtin.apt_key:
     url: "{{ minecraft_java_deb_key }}"
     keyring: /usr/share/keyrings/corretto-keyring.gpg
     state: present
 
-- name: Ensure corretto repo is on remote
+- name: Ensure Java repository is on remote
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/java.list
     content: "{{ minecraft_java_deb_repo }}"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
 
-- name: Update cache if needed
+- name: Update APT cache
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
@@ -45,56 +45,37 @@
     url: "https://api.papermc.io/v2/projects/paper/versions/{{ minecraft_paper_version }}/builds/{{ minecraft_paper_build }}/downloads/paper-{{ minecraft_paper_version }}-{{ minecraft_paper_build }}.jar"
     dest: /root/paper-{{ minecraft_paper_version }}-{{ minecraft_paper_build }}.jar
     mode: "0644"
-  notify: Restart minecraft service
+  notify: Restart Minecraft
 
-- name: Ensure eula file is present on remote
+- name: Ensure EULA file is present on remote
   ansible.builtin.copy:
     src: eula.txt
     dest: /root/eula.txt
     mode: "0644"
     owner: root
     group: root
-  notify: Restart minecraft service
+  notify: Restart Minecraft
 
-- name: Ensure minecraft service file is on remote (systemd)
+- name: Ensure templates are deployed on remote
+  ansible.builtin.template:
+    src: /root/server.properties
+    dest: "{{ minecraft_properties_template }}"
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart Minecraft
+
+- name: Ensure Minecraft service file is on remote (systemd)
   ansible.builtin.template:
     src: minecraft.service.j2
     dest: /etc/systemd/system/minecraft.service
     mode: "0664"
     owner: root
     group: root
+  notify: Restart Minecraft
 
-- name: Ensure minecraft service is enabled and started
-  ansible.builtin.service:
+- name: Ensure Minecraft service is enabled and started
+  ansible.builtin.systemd:
     name: minecraft
     state: started
     enabled: true
-
-- name: Ensure templates are on remote
-  ansible.builtin.copy:
-    dest: /root/{{ item.name }}
-    content: "{{ item.content }}"
-    mode: "0644"
-    owner: root
-    group: root
-  with_items:
-    - { content: "{{ minecraft_properties_template }}", name: server.properties-template }
-
-- name: Get templates from remote to controller in predictable location
-  ansible.builtin.fetch:
-    src: /root/{{ item }}
-    dest: /tmp
-  changed_when: false
-  with_items:
-    - server.properties-template
-
-- name: Create configs from templates on controller
-  ansible.builtin.template:
-    src: /tmp/{{ inventory_hostname }}/root/{{ item.name }}
-    dest: "{{ item.dest }}"
-    mode: "0644"
-    owner: root
-    group: root
-  with_items:
-    - { name: server.properties-template, dest: /root/server.properties }
-  notify: Restart minecraft service
